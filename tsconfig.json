@@ -1,0 +1,35 @@
+{
+	"compilerOptions": {
+		"baseUrl": "src",
+		"inlineSourceMap": true,
+		"inlineSources": true,
+		"module": "ESNext",
+		"target": "ES2022",
+		"allowJs": true,
+		"strict": true,
+		"noImplicitAny": true,
+		"noImplicitThis": true,
+		"noImplicitReturns": true,
+		"moduleResolution": "node",
+		"importHelpers": true,
+		"noUncheckedIndexedAccess": true,
+		"isolatedModules": true,
+		"strictNullChecks": true,
+		"strictBindCallApply": true,
+		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true,
+		"resolveJsonModule": true,
+		"useUnknownInCatchVariables": true,
+		"jsx": "preserve",
+		"types": ["node"],
+		"lib": [
+			"DOM",
+			"DOM.Iterable",
+			"ES2022"
+		]
+	},
+	"include": [
+		"src/**/*.ts",
+		"src/**/*.vue"
+	]
+}
