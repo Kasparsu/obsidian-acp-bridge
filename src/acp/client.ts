@@ -86,7 +86,9 @@ export function createAcpController(
 			if (getSettings().logTraffic) console.debug("[acp:stderr]", chunk.toString());
 		});
 		proc.on("exit", (code, signal) => {
-			console.info(`[acp] agent exited (code=${code}, signal=${signal})`);
+			if (getSettings().logTraffic) {
+				console.info(`[acp] agent exited (code=${code}, signal=${signal})`);
+			}
 			if (state.value.kind !== "error") state.value = { kind: "idle" };
 			proc = null;
 			connection = null;

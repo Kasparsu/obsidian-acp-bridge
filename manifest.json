@@ -3,7 +3,7 @@
 	"name": "ACP Bridge",
 	"version": "0.1.0",
 	"minAppVersion": "1.4.0",
-	"description": "Talk to ACP-compatible coding agents (Claude Code, Gemini, Codex, ...) from inside Obsidian. Lets agents read and edit your vault over the Agent Client Protocol.",
+	"description": "Chat with ACP-compatible coding agents like Claude Code, Gemini, and Codex from inside Obsidian. Agents read and edit your vault over the Agent Client Protocol.",
 	"author": "Kaspar",
 	"isDesktopOnly": true
 }

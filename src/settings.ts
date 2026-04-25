@@ -254,7 +254,7 @@ function renderProfileBlock(
 	refresh: () => void,
 ): void {
 	const wrap = containerEl.createDiv({ cls: "acp-profile" });
-	wrap.createEl("h4", { text: profile.name });
+	new Setting(wrap).setName(profile.name).setHeading();
 
 	const hintTemplate = Object.values(PROFILE_TEMPLATES).find(t => t.name === profile.name);
 	if (hintTemplate?.hint) {
