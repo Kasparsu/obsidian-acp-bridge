@@ -110,8 +110,6 @@ export class AcpBridgeSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		new Setting(containerEl).setName("Agent profiles").setHeading();
-
 		new Setting(containerEl)
 			.setName("Active profile")
 			.setDesc("Which profile new sessions launch with. Loading a saved session ignores this and uses whatever profile that session was created with.")
