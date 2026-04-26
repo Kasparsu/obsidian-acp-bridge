@@ -1,4 +1,4 @@
-import { App, Notice, PluginSettingTab, Setting, TFile, TFolder } from "obsidian";
+import { App, Modal, Notice, PluginSettingTab, Setting, TFile, TFolder } from "obsidian";
 import type AcpBridgePlugin from "./main";
 import type { SavedSession } from "./acp/types";
 import { VaultItemPicker } from "./ui/modals/VaultItemPicker";
@@ -167,18 +167,21 @@ export class AcpBridgeSettingTab extends PluginSettingTab {
 
 		const explainer = containerEl.createEl("p", { cls: "setting-item-description" });
 		explainer.appendText("ACP Bridge auto-discovers ");
-		explainer.createEl("code", { text: ".claude/rules/**/*.md" });
+		explainer.createEl("code").setText(".claude/rules/**/*.md");
 		explainer.appendText(" inside your vault and prepends matching rules to every prompt. Rules with a YAML ");
-		explainer.createEl("code", { text: "paths:" });
+		// eslint-disable-next-line obsidianmd/ui/sentence-case
+		explainer.createEl("code").setText("paths:");
 		explainer.appendText(" list (glob patterns) only apply when the active file or an attached file/folder matches one of them. Rules without ");
-		explainer.createEl("code", { text: "paths:" });
+		// eslint-disable-next-line obsidianmd/ui/sentence-case
+		explainer.createEl("code").setText("paths:");
 		explainer.appendText(" are unconditional. The vault root's ");
-		explainer.createEl("code", { text: "CLAUDE.md" });
+		// eslint-disable-next-line obsidianmd/ui/sentence-case
+		explainer.createEl("code").setText("CLAUDE.md");
 		explainer.appendText(" is auto-included as a primer when present.");
 
 		new Setting(containerEl)
 			.setName("Additional rule files")
-			.setDesc("Extra files outside .claude/rules/ that should also be injected. Use this to point at rule files elsewhere in your vault.")
+			.setDesc("Extra files that should also be injected, outside the auto-discovery folder. Use this for rule files elsewhere in your vault.")
 			.addButton(b => b
 				.setButtonText("Add file")
 				.onClick(() => {
@@ -222,7 +225,7 @@ export class AcpBridgeSettingTab extends PluginSettingTab {
 				.setName(s.title || "(untitled)")
 				.setDesc(`${profile?.name ?? s.profileId} · ${formatRelative(s.lastUsed)} · ${s.sessionId}`)
 				.addExtraButton(b => b.setIcon("pencil").setTooltip("Rename").onClick(async () => {
-					const next = window.prompt("New title", s.title);
+					const next = await promptForText(this.app, "Rename session", s.title);
 					if (next == null) return;
 					s.title = next.trim() || s.title;
 					await this.plugin.saveSettings();
@@ -284,7 +287,7 @@ function renderProfileBlock(
 
 	new Setting(wrap)
 		.setName("Environment variables")
-		.setDesc("One KEY=value per line. Inherits Obsidian's process env on top.")
+		.setDesc("One name=value per line. Merged on top of the inherited process environment.")
 		.addTextArea(t => {
 			t.setValue(serializeEnv(profile.env));
 			t.inputEl.rows = 3;
@@ -335,6 +338,59 @@ function parseEnv(text: string): Record<string, string> {
 		if (key) out[key] = value;
 	}
 	return out;
+}
+
+function promptForText(app: App, title: string, initial: string): Promise<string | null> {
+	return new Promise(resolve => {
+		const modal = new TextPromptModal(app, title, initial, resolve);
+		modal.open();
+	});
+}
+
+class TextPromptModal extends Modal {
+	private value: string;
+	private settled = false;
+
+	constructor(
+		app: App,
+		private title: string,
+		initial: string,
+		private done: (val: string | null) => void,
+	) {
+		super(app);
+		this.value = initial;
+	}
+
+	onOpen() {
+		this.titleEl.setText(this.title);
+		new Setting(this.contentEl)
+			.setName("Title")
+			.addText(t => {
+				t.setValue(this.value).onChange(v => { this.value = v; });
+				t.inputEl.focus();
+				t.inputEl.select();
+				t.inputEl.addEventListener("keydown", e => {
+					if (e.key === "Enter") { e.preventDefault(); this.commit(this.value); }
+				});
+			});
+		new Setting(this.contentEl)
+			.addButton(b => b.setButtonText("Cancel").onClick(() => this.commit(null)))
+			.addButton(b => b.setButtonText("Save").setCta().onClick(() => this.commit(this.value)));
+	}
+
+	private commit(val: string | null) {
+		if (this.settled) return;
+		this.settled = true;
+		this.done(val);
+		this.close();
+	}
+
+	onClose() {
+		if (!this.settled) {
+			this.settled = true;
+			this.done(null);
+		}
+	}
 }
 
 function formatRelative(ts: number): string {

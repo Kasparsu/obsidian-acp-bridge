@@ -43,8 +43,8 @@ export default class AcpBridgePlugin extends Plugin {
 		this.addSettingTab(new AcpBridgeSettingTab(this.app, this));
 	}
 
-	async onunload() {
-		await this.controller?.stop();
+	onunload() {
+		void this.controller?.stop();
 	}
 
 	async loadSettings() {
@@ -70,6 +70,6 @@ export default class AcpBridgePlugin extends Plugin {
 			leaf = this.app.workspace.getRightLeaf(false);
 			await leaf?.setViewState({ type: CHAT_VIEW_TYPE, active: true });
 		}
-		if (leaf) this.app.workspace.revealLeaf(leaf);
+		if (leaf) await this.app.workspace.revealLeaf(leaf);
 	}
 }

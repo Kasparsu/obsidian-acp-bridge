@@ -1,4 +1,6 @@
+import { Buffer } from "node:buffer";
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
+import process from "node:process";
 import { Readable, Writable } from "node:stream";
 import { App, MarkdownView, TFile, arrayBufferToBase64 } from "obsidian";
 import { reactive, ref, type Ref } from "vue";
@@ -6,7 +8,7 @@ import * as acp from "@agentclientprotocol/sdk";
 
 import type { AgentProfile, AcpBridgeSettings } from "../settings";
 import { VaultFs } from "./filesystem";
-import { discoverRules, readPrimer, ruleApplies, type DiscoveredRule } from "./rules";
+import { discoverRules, readPrimer, ruleApplies } from "./rules";
 import type {
 	ChatItem,
 	ConnectionState,
@@ -15,10 +17,6 @@ import type {
 	Plan,
 	SavedSession,
 	SessionConfig,
-	SessionConfigOption,
-	SessionId,
-	SessionModelState,
-	SessionModeState,
 } from "./types";
 
 export interface AcpController {
@@ -82,12 +80,12 @@ export function createAcpController(
 			stdio: ["pipe", "pipe", "pipe"],
 		});
 
-		proc.stderr.on("data", chunk => {
+		proc.stderr.on("data", (chunk: Buffer) => {
 			if (getSettings().logTraffic) console.debug("[acp:stderr]", chunk.toString());
 		});
 		proc.on("exit", (code, signal) => {
 			if (getSettings().logTraffic) {
-				console.info(`[acp] agent exited (code=${code}, signal=${signal})`);
+				console.debug(`[acp] agent exited (code=${code}, signal=${signal})`);
 			}
 			if (state.value.kind !== "error") state.value = { kind: "idle" };
 			proc = null;
@@ -98,7 +96,7 @@ export function createAcpController(
 		});
 
 		const stream = acp.ndJsonStream(
-			Writable.toWeb(proc.stdin) as WritableStream,
+			Writable.toWeb(proc.stdin) as unknown as WritableStream<Uint8Array>,
 			Readable.toWeb(proc.stdout) as ReadableStream<Uint8Array>,
 		);
 
@@ -134,7 +132,7 @@ export function createAcpController(
 			},
 		});
 		loadSessionSupported.value = !!init.agentCapabilities?.loadSession;
-		if (getSettings().logTraffic) console.info("[acp] initialized", init);
+		if (getSettings().logTraffic) console.debug("[acp] initialized", init);
 	}
 
 	async function start(profile: AgentProfile) {
@@ -146,9 +144,9 @@ export function createAcpController(
 				mcpServers: [],
 			});
 
-			sessionConfig.configOptions = (session.configOptions ?? []) as SessionConfigOption[];
-			sessionConfig.models = (session.models ?? null) as SessionModelState | null;
-			sessionConfig.modes = (session.modes ?? null) as SessionModeState | null;
+			sessionConfig.configOptions = session.configOptions ?? [];
+			sessionConfig.models = session.models ?? null;
+			sessionConfig.modes = session.modes ?? null;
 			firstTurnSent = false;
 
 			const saved: SavedSession = {
@@ -207,9 +205,9 @@ export function createAcpController(
 				cwd: fs.basePath,
 				mcpServers: [],
 			});
-			sessionConfig.configOptions = (loaded?.configOptions ?? []) as SessionConfigOption[];
-			sessionConfig.models = (loaded?.models ?? null) as SessionModelState | null;
-			sessionConfig.modes = (loaded?.modes ?? null) as SessionModeState | null;
+			sessionConfig.configOptions = loaded?.configOptions ?? [];
+			sessionConfig.models = loaded?.models ?? null;
+			sessionConfig.modes = loaded?.modes ?? null;
 			saved.lastUsed = Date.now();
 			await saveSettings();
 			currentSavedId.value = saved.id;
@@ -337,7 +335,7 @@ export function createAcpController(
 			: { ...base, value };
 		const res = await connection.setSessionConfigOption(req);
 		if (res?.configOptions) {
-			sessionConfig.configOptions = res.configOptions as SessionConfigOption[];
+			sessionConfig.configOptions = res.configOptions;
 		} else {
 			const opt = sessionConfig.configOptions.find(o => o.id === configId);
 			if (opt) (opt as { currentValue: string | boolean }).currentValue = value;
@@ -563,7 +561,7 @@ function applyUpdate(notif: acp.SessionNotification, sinks: UpdateSinks) {
 			if (sinks.sessionConfig.modes) sinks.sessionConfig.modes.currentModeId = u.currentModeId;
 			break;
 		case "config_option_update":
-			sinks.sessionConfig.configOptions = u.configOptions as SessionConfigOption[];
+			sinks.sessionConfig.configOptions = u.configOptions;
 			break;
 		default:
 			break;
