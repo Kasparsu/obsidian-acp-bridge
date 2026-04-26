@@ -2,7 +2,9 @@
 
 Talk to [ACP](https://agentclientprotocol.com)-compatible coding agents — Claude Code, Gemini CLI, Codex, and others — from inside Obsidian. The agent runs locally as a subprocess and can read and edit files in your vault, with per-call permission prompts.
 
-> Status: **early — v0.1.0**. Single agent profile, single session, plain-text rendering, desktop-only.
+> **Status: alpha — v0.1.0.** Desktop-only. APIs around it are still moving fast; expect rough edges.
+
+> **A note on provenance.** Most of this code was written by Claude Opus in conversational pair-programming sessions, with a human at the wheel — reviewing every diff, running every build, and making the architectural calls. The human is enthusiastic, not an Obsidian-plugin veteran. The plugin is alpha; the agent you point it at can read and write files in your vault. Treat it accordingly: try it on a vault you don't mind losing first, skim the source if you're trusting it with anything sensitive, and report bugs cheerfully. There is, in the spirit of the genre, no warranty.
 
 ## What it does
 
