@@ -22,22 +22,6 @@ export default tseslint.config(
 		},
 	},
 	...obsidianmd.configs.recommended,
-	{
-		plugins: { obsidianmd },
-		rules: {
-			"obsidianmd/ui/sentence-case": ["error", {
-				acronyms: [
-					"ACP", "API", "CLI", "HTTP", "HTTPS", "JSON", "JSON-RPC", "RPC",
-					"MCP", "SDK", "URL", "URI", "UUID", "YAML",
-				],
-				brands: [
-					"Obsidian", "Claude", "Claude Code", "Gemini", "Codex",
-					"Cursor", "OpenCode", "Goose", "Markdown",
-				],
-				ignoreWords: ["CLAUDE.md", "paths:", "data.json"],
-			}],
-		},
-	},
 	globalIgnores([
 		"node_modules",
 		"dist",

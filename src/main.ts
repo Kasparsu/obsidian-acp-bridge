@@ -18,7 +18,7 @@ export default class AcpBridgePlugin extends Plugin {
 
 		this.registerView(CHAT_VIEW_TYPE, leaf => new ChatView(leaf, this));
 
-		this.addRibbonIcon("bot", "Open ACP chat", () => this.openChatView());
+		this.addRibbonIcon("bot", "Open chat", () => this.openChatView());
 		this.addCommand({
 			id: "open-chat",
 			name: "Open chat",

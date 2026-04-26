@@ -116,11 +116,12 @@ export function createAcpController(
 					});
 				});
 			},
-			async sessionUpdate(notif) {
+			sessionUpdate(notif) {
 				applyUpdate(notif, { chatItems, plan, thinking, sessionConfig });
+				return Promise.resolve();
 			},
-			async readTextFile(req) { return fs.readTextFile(req); },
-			async writeTextFile(req) { return fs.writeTextFile(req); },
+			readTextFile(req) { return fs.readTextFile(req); },
+			writeTextFile(req) { return fs.writeTextFile(req); },
 		};
 
 		connection = new acp.ClientSideConnection(() => clientImpl, stream);
@@ -296,7 +297,7 @@ export function createAcpController(
 		await connection.cancel({ sessionId: state.value.sessionId });
 	}
 
-	async function stop() {
+	function stop(): Promise<void> {
 		try { proc?.kill(); } catch { /* noop */ }
 		for (const resolve of permissionResolvers.values()) {
 			resolve({ outcome: { outcome: "cancelled" } });
@@ -314,6 +315,7 @@ export function createAcpController(
 		firstTurnSent = false;
 		currentSavedId.value = null;
 		loadSessionSupported.value = false;
+		return Promise.resolve();
 	}
 
 	function resolvePermission(itemId: string, optionId: string) {

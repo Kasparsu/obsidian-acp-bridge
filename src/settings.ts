@@ -165,19 +165,9 @@ export class AcpBridgeSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl).setName("Rules").setHeading();
 
-		const explainer = containerEl.createEl("p", { cls: "setting-item-description" });
-		explainer.appendText("ACP Bridge auto-discovers ");
-		explainer.createEl("code").setText(".claude/rules/**/*.md");
-		explainer.appendText(" inside your vault and prepends matching rules to every prompt. Rules with a YAML ");
-		// eslint-disable-next-line obsidianmd/ui/sentence-case
-		explainer.createEl("code").setText("paths:");
-		explainer.appendText(" list (glob patterns) only apply when the active file or an attached file/folder matches one of them. Rules without ");
-		// eslint-disable-next-line obsidianmd/ui/sentence-case
-		explainer.createEl("code").setText("paths:");
-		explainer.appendText(" are unconditional. The vault root's ");
-		// eslint-disable-next-line obsidianmd/ui/sentence-case
-		explainer.createEl("code").setText("CLAUDE.md");
-		explainer.appendText(" is auto-included as a primer when present.");
+		new Setting(containerEl)
+			.setName("Auto-discovery")
+			.setDesc("Rule files in the rules folder under your vault are prepended to every prompt. A rule can include a frontmatter paths list (glob patterns) to apply only when the active file or an attached file/folder matches one of them. Rules without paths apply to every prompt. A primer file at the vault root is auto-included when present.");
 
 		new Setting(containerEl)
 			.setName("Additional rule files")
@@ -241,7 +231,7 @@ export class AcpBridgeSettingTab extends PluginSettingTab {
 		new Setting(containerEl).setName("Diagnostics").setHeading();
 
 		new Setting(containerEl)
-			.setName("Log JSON-RPC traffic to console")
+			.setName("Log protocol traffic to console")
 			.setDesc("Useful when an agent does something unexpected. Off in normal use.")
 			.addToggle(t => t.setValue(this.plugin.settings.logTraffic)
 				.onChange(async v => { this.plugin.settings.logTraffic = v; await this.plugin.saveSettings(); }));
@@ -271,7 +261,7 @@ function renderProfileBlock(
 
 	new Setting(wrap)
 		.setName("Command")
-		.setDesc("Executable that speaks ACP over stdio.")
+		.setDesc("Path to the agent executable.")
 		.addText(t => t.setValue(profile.command).onChange(async v => {
 			profile.command = v;
 			await plugin.saveSettings();

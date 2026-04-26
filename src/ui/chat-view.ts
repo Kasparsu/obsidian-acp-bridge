@@ -13,20 +13,22 @@ export class ChatView extends ItemView {
 	}
 
 	getViewType() { return CHAT_VIEW_TYPE; }
-	getDisplayText() { return "ACP chat"; }
+	getDisplayText() { return "Agents"; }
 	getIcon() { return "bot"; }
 
-	async onOpen() {
+	onOpen(): Promise<void> {
 		this.contentEl.empty();
 		const root = this.contentEl.createDiv({ cls: "acp-chat-root" });
 		this.vueApp = createApp(App);
 		this.vueApp.provide("plugin", this.plugin);
 		this.vueApp.provide("controller", this.plugin.controller);
 		this.vueApp.mount(root);
+		return Promise.resolve();
 	}
 
-	async onClose() {
+	onClose(): Promise<void> {
 		this.vueApp?.unmount();
 		this.vueApp = null;
+		return Promise.resolve();
 	}
 }
