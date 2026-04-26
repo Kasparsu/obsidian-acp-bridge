@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-acp-bridge",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Obsidian plugin that bridges the vault to ACP-compatible coding agents.",
 	"main": "main.js",
 	"type": "module",
